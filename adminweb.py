@@ -3,48 +3,56 @@ import string,time,subprocess
 import os,sys,cgi,base64,socket
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
-#Program developed to control tha main administration function in a web fashion
+#Program developed to control linux in a web fashion
 #AUThOR : ROBERTO RIBEIRO - PRODASEN SSA
 #DATE : 31/05/2011
 
 #START  CONFIGURATION
-#Configuracao do servico - ip (coloque 0.0.0.0 e fica generico), porta , hostname( deprecado,mas mantenha a string vazia) , usuario , senha
+#General Service Configuration - ip (use 0.0.0.0 and keep it generic), port , hostname(do not use,but keep the empty string) , user , password, head of the pages,label of the button that brings the main screen, label of the save button,label of the confirmation
 baseConfig = ['0.0.0.0','10500','','admin','Pardal','PRODASEN - SSA -','Main Panel','Save','Are you sure?']
-#racao
-#Voce deve acrescentar um array Config que possui N Arrays para cada conjunto de botoes no seguinte formato:
-#1 elemento com o  nome do conjunto
-#N Elementos com a possibilidade dos seguintes formatos dependendo do tipo de botao (4 tipos):
-#Formato "Call   com Tela":
- #Label do Botao
- #Tipo do botao : no caso Tipo 1
- #Array com o comando e parametros
- #Se tem confirmacao ou nao
- #A mensagem quando o comando for finalizado(quer tenha sucesso ou fracasso e normalmente pedindo para visualizar o log)
-#Formato "System com Tela":
- #Label do Botao
- #Tipo do botao : no caso Tipo 2
- #String com o comando
- #Se tem confirmacao ou nao
- #A mensagem quando o comando der status 0
- #A mensagem quando o comando der status 1
-#Formato "Edicao de arquivo":
- #Label do Botao
- #Tipo do botao : no caso Tipo 3
- #String com o arquivo
- #Se tem confirmacao ou nao
-#Formato "Visualizador de arquivos":
- #Label do Botao
- #Tipo do botao : no caso Tipo 4
- #String com o comando que sera pipeado para o arquivo temporario que sera lido
- #Se tem confirmacao ou nao
-#Formato "Upload de arquivos":
- #Label do Botao
- #Tipo do botao : no caso Tipo 5
- #Diretorio onde o arquivo fica
- #Se tem confirmacao ou nao
- #Mensagem para a tela onde se escolhe o arquivo
- #Tamanho do edit onde mostra o arquivo
- #Mensagem qdo o upload concluir ok
+#Per administered service configuration
+#You must add an array named Config that has N child arrays for each set of buttons in the following format:
+#First String with then name of the administered service 
+# N Buttons of that administered service. It can be of the following types (5):
+
+# Type 1 - "Call with screen" format (used in scripts of /etc/init.d to start/stop/reload services):
+ #Label
+ #Button type : 1
+ #Array of command and parameters
+ #1 - Has confirmation prompt 0 - do not has confirmation prompt
+ #Message to present in the end of processing (no matter what happened, this message wil be shown)
+
+#Type 2 - "System with Screen" format (used to execute scripts - like status - and capture the result):
+#DANGER: DO NOT USE THIS BUTTON TO START SCRIPTS THAT WILL LAUNCH PROCESSES IN BACKGROUD(like /etc/init.d scripts) - USE TYPE 1 IN THIS CASE 
+#DANGER: USE THIS TYPE TO LAUNCH SCRIPTS THAT WILL END WITHOUT going BACKGROUND 
+ #Label 
+ #Button type : 2
+ #String with the command (can have pipes)
+ #1 - Has confirmation prompt 0 - do not has confirmation prompt
+ #return menssage when success
+ #return message when fails
+
+#Type 3 - "File Edit" format
+ #Label 
+ #Button type : 3
+ #String with the file to be edited
+ #1 - Has confirmation prompt 0 - do not has confirmation prompt
+ 
+#Type 4 - "Watch result file" format (Used to run commands  that will show results - like a processing with awk  ):
+ #Label 
+ #Button type  : 4
+ #String with the commands that will have the result piped to a known file that will be shown 
+ #1 - Has confirmation prompt 0 - do not has confirmation prompt
+ 
+
+#Type 5 - "File upload" format:
+ #Label 
+ #Button type : 5
+ #Upload directory (like "/opt/test/" dont forget the bars)
+ #1 - Has confirmation prompt 0 - do not has confirmation prompt
+ #Message in the screen that chooses the file 
+ #Size of the label that shows the file name
+ #Menssage in case of success
 
 
 config = [
